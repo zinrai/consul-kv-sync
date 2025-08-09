@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -149,4 +150,28 @@ func formatKVPairsForDisplay(pairs []KVPair) string {
 
 	sb.WriteString(fmt.Sprintf("\nTotal: %d key-value pairs\n", len(pairs)))
 	return sb.String()
+}
+
+// exportToJSON exports KV pairs in Consul JSON format to stdout
+func exportToJSON(pairs []KVPair) error {
+	type consulKV struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	}
+
+	kvData := make([]consulKV, len(pairs))
+	for i, pair := range pairs {
+		kvData[i] = consulKV{
+			Key:   pair.Key,
+			Value: encodeValue(pair.Value),
+		}
+	}
+
+	encoder := json.NewEncoder(os.Stdout)
+	encoder.SetIndent("", "\t")
+	if err := encoder.Encode(kvData); err != nil {
+		return fmt.Errorf("failed to encode JSON: %w", err)
+	}
+
+	return nil
 }

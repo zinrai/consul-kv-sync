@@ -9,6 +9,7 @@ A tool to synchronize YAML configuration files to Consul KV store using the [Tra
 - Duplicate key detection across files
 - Dry-run mode for validation
 - Atomic operations using Consul Transaction API (up to 64 operations per transaction)
+- Export to Consul KV JSON format for backup or import
 
 ## Installation
 
@@ -49,6 +50,12 @@ Verbose output with custom Consul address:
 
 ```bash
 $ consul-kv-syncer -env production -consul-addr http://consul:8500 -verbose
+```
+
+Export to JSON format:
+
+```bash
+$ consul-kv-syncer -env production -export > production-kv.json
 ```
 
 ## Configuration

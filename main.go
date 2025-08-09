@@ -20,6 +20,7 @@ func main() {
 		environment = flag.String("env", "", "Environment name (required)")
 		configFile  = flag.String("config", DefaultConfigFile, "Path to environments configuration file")
 		dryRun      = flag.Bool("dry-run", false, "Perform a dry run without making actual changes")
+		export      = flag.Bool("export", false, "Export KV pairs in Consul JSON format to stdout")
 		consulAddr  = flag.String("consul-addr", DefaultConsulAddr, "Consul HTTP API address")
 		datacenter  = flag.String("datacenter", DefaultDatacenter, "Consul datacenter")
 		verbose     = flag.Bool("verbose", false, "Enable verbose output")
@@ -33,6 +34,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "\nExamples:\n")
 		fmt.Fprintf(os.Stderr, "  %s -env production\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -env staging -dry-run\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "  %s -env production -export > production-kv.json\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -env production -consul-addr http://consul:8500 -verbose\n", os.Args[0])
 	}
 
@@ -51,13 +53,13 @@ func main() {
 	}
 
 	// Execute main logic
-	if err := run(*environment, *configFile, *dryRun, *consulAddr, *datacenter, *verbose); err != nil {
+	if err := run(*environment, *configFile, *dryRun, *export, *consulAddr, *datacenter, *verbose); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(environment, configFile string, dryRun bool, consulAddr, datacenter string, verbose bool) error {
+func run(environment, configFile string, dryRun, export bool, consulAddr, datacenter string, verbose bool) error {
 	// Load configuration and files
 	kvMaps, filenames, err := loadConfigurationAndFiles(environment, configFile, verbose)
 	if err != nil {
@@ -73,6 +75,11 @@ func run(environment, configFile string, dryRun bool, consulAddr, datacenter str
 	allPairs := collectAllKVPairs(kvMaps)
 	if verbose {
 		fmt.Printf("Collected %d key-value pairs\n", len(allPairs))
+	}
+
+	// Handle export mode
+	if export {
+		return exportToJSON(allPairs)
 	}
 
 	// Handle dry run
