@@ -92,7 +92,8 @@ func (c *ConsulClient) syncKVPairs(pairs []KVPair, verbose bool) (*ExecutionSumm
 
 	for i, chunk := range chunks {
 		if verbose {
-			fmt.Printf("Processing batch %d/%d (%d operations)...\n", i+1, len(chunks), len(chunk))
+			fmt.Printf("\nProcessing batch %d/%d (%d operations)...\n", i+1, len(chunks), len(chunk))
+			printBatchKeys(chunk)
 		}
 
 		result := BatchResult{
@@ -115,6 +116,10 @@ func (c *ConsulClient) syncKVPairs(pairs []KVPair, verbose bool) (*ExecutionSumm
 
 		summary.Results = append(summary.Results, result)
 
+		if verbose && result.Success {
+			fmt.Printf("Batch %d/%d completed successfully\n", i+1, len(chunks))
+		}
+
 		// Add a small delay between batches to avoid overwhelming the server
 		if i < len(chunks)-1 {
 			time.Sleep(100 * time.Millisecond)
@@ -122,6 +127,16 @@ func (c *ConsulClient) syncKVPairs(pairs []KVPair, verbose bool) (*ExecutionSumm
 	}
 
 	return summary, nil
+}
+
+// printBatchKeys prints all keys in a batch
+func printBatchKeys(ops []TxnOp) {
+	fmt.Println("Keys to be registered:")
+	for _, op := range ops {
+		if op.KV != nil {
+			fmt.Printf("  - %s\n", op.KV.Key)
+		}
+	}
 }
 
 // formatExecutionSummary formats the execution summary for display
@@ -159,7 +174,7 @@ func writeFailedBatches(sb *strings.Builder, summary *ExecutionSummary) {
 
 	for _, result := range summary.Results {
 		if !result.Success {
-			sb.WriteString(fmt.Sprintf("Batch %d: %v\n", result.BatchIndex+1, result.Error))
+			sb.WriteString(fmt.Sprintf("Batch %d (failed with %d operations): %v\n", result.BatchIndex+1, result.ProcessedOps, result.Error))
 			writeOperationErrors(sb, result.OpErrors)
 		}
 	}
