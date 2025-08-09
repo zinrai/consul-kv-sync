@@ -1,0 +1,27 @@
+# Feature flags for production environment
+
+features:
+  new_ui:
+    enabled: true
+    rollout_percentage: 100
+    
+  advanced_search:
+    enabled: true
+    rollout_percentage: 100
+      
+  payment_v2:
+    enabled: true
+    rollout_percentage: 100
+    
+  experimental:
+    ai_recommendations: false
+    real_time_analytics: false
+    
+  maintenance:
+    enabled: false
+    message: ""
+    
+  kill_switches:
+    disable_third_party_api: false
+    disable_email_notifications: false
+    disable_background_jobs: false

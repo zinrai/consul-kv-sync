@@ -1,0 +1,30 @@
+# Database configuration for staging environment
+
+database:
+  primary:
+    host: staging-db.internal
+    port: 5432
+    name: myapp_staging
+    user: staging_user
+    pool:
+      min: 5
+      max: 20
+      idle_timeout: 600s
+      
+  read_replica:
+    enabled: true
+    host: staging-db-read.internal
+    port: 5432
+    
+  migrations:
+    auto_run: false  # Manual migrations in staging
+    path: /migrations
+    
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM
+    retention_days: 7
+    
+monitoring:
+  slow_query_threshold: 50ms
+  log_queries: false

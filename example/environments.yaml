@@ -1,0 +1,17 @@
+# Example environment configuration for consul-kv-syncer
+# This file demonstrates how to organize KV configurations by environment
+
+development:
+  - development/app.yaml
+  - development/database.yaml
+
+staging:
+  - staging/app.yaml
+  - staging/database.yaml
+  - staging/features.yaml
+
+production:
+  - production/app.yaml
+  - production/database.yaml
+  - production/features.yaml
+  - production/redis.yaml

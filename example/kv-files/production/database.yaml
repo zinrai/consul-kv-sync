@@ -1,0 +1,39 @@
+# Database configuration for production environment
+
+database:
+  primary:
+    host: prod-db-primary.internal
+    port: 5432
+    name: myapp_prod
+    user: prod_user
+    ssl_mode: require
+    pool:
+      min: 10
+      max: 50
+      idle_timeout: 900s
+      
+  read_replica:
+    enabled: true
+    hosts:
+      - prod-db-read-1.internal
+      - prod-db-read-2.internal
+    port: 5432
+    load_balancing: round_robin
+    
+  migrations:
+    auto_run: false  # Never auto-run in production
+    path: /migrations
+    
+  backup:
+    enabled: true
+    schedule: "0 1 * * *"  # Daily at 1 AM
+    retention_days: 30
+    type: incremental
+    storage: s3://backups/database/
+    
+monitoring:
+  slow_query_threshold: 20ms
+  log_queries: false
+  alerts:
+    connection_pool_exhausted: true
+    replication_lag_threshold: 5s

@@ -1,0 +1,25 @@
+# Application configuration for development environment
+
+app:
+  name: my-awesome-app
+  version: dev-latest
+  environment: development
+  
+  server:
+    host: localhost
+    port: 8080
+    timeout: 30s
+    
+  logging:
+    level: debug
+    format: json
+    output: stdout
+    
+  security:
+    cors:
+      enabled: true
+      origins:
+        - http://localhost:3000
+        - http://localhost:3001
+    csrf:
+      enabled: false  # Disabled for development

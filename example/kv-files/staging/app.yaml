@@ -1,0 +1,34 @@
+# Application configuration for staging environment
+
+app:
+  name: my-awesome-app
+  version: v1.2.0-staging
+  environment: staging
+  
+  server:
+    host: 0.0.0.0
+    port: 8080
+    timeout: 60s
+    
+  logging:
+    level: info
+    format: json
+    output: file
+    file:
+      path: /var/log/app/app.log
+      max_size: 100M
+      max_files: 5
+    
+  security:
+    cors:
+      enabled: true
+      origins:
+        - https://staging.example.com
+        - https://app-staging.example.com
+    csrf:
+      enabled: true
+      
+  api:
+    rate_limit:
+      enabled: true
+      requests_per_minute: 100

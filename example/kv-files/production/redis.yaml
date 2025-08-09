@@ -1,0 +1,36 @@
+# Redis configuration for production environment
+
+redis:
+  cluster:
+    enabled: true
+    nodes:
+      - redis-1.internal:6379
+      - redis-2.internal:6379
+      - redis-3.internal:6379
+    
+  connection:
+    timeout: 5s
+    max_retries: 3
+    pool_size: 100
+    min_idle_conns: 10
+    
+  sentinel:
+    enabled: true
+    master_name: myapp-master
+    sentinels:
+      - sentinel-1.internal:26379
+      - sentinel-2.internal:26379
+      - sentinel-3.internal:26379
+      
+  cache:
+    default_ttl: 3600s
+    max_memory: 4gb
+    eviction_policy: allkeys-lru
+    
+  session_store:
+    prefix: "session:"
+    ttl: 86400s  # 24 hours
+    
+  rate_limiting:
+    prefix: "rate:"
+    window: 60s

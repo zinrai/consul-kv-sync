@@ -1,0 +1,38 @@
+# Application configuration for production environment
+
+app:
+  name: my-awesome-app
+  version: v1.2.0
+  environment: production
+  
+  server:
+    host: 0.0.0.0
+    port: 8080
+    timeout: 30s
+    graceful_shutdown: 30s
+    
+  logging:
+    level: warn
+    format: json
+    output: file
+    file:
+      path: /var/log/app/app.log
+      max_size: 1G
+      max_files: 10
+      compress: true
+    
+  security:
+    cors:
+      enabled: true
+      origins:
+        - https://app.example.com
+        - https://www.example.com
+    csrf:
+      enabled: true
+      token_length: 32
+      
+  api:
+    rate_limit:
+      enabled: true
+      requests_per_minute: 1000
+      burst: 50

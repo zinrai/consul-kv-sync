@@ -1,0 +1,25 @@
+# Feature flags for staging environment
+
+features:
+  new_ui:
+    enabled: true
+    rollout_percentage: 100
+    
+  advanced_search:
+    enabled: true
+    rollout_percentage: 50
+    whitelist_users:
+      - test@example.com
+      - qa@example.com
+      
+  payment_v2:
+    enabled: true
+    rollout_percentage: 25
+    
+  experimental:
+    ai_recommendations: false
+    real_time_analytics: true
+    
+  maintenance:
+    enabled: false
+    message: "System maintenance in progress"
