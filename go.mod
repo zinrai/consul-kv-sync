@@ -1,4 +1,4 @@
-module github.com/zinrai/consul-kv-syncer
+module github.com/zinrai/consul-kv-sync
 
 go 1.24.0
 

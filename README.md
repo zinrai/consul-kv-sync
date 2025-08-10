@@ -1,4 +1,4 @@
-# consul-kv-syncer
+# consul-kv-sync
 
 A tool to synchronize YAML configuration files to Consul KV store using the [Transaction API](https://developer.hashicorp.com/consul/api-docs/txn).
 
@@ -14,7 +14,7 @@ A tool to synchronize YAML configuration files to Consul KV store using the [Tra
 ## Installation
 
 ```bash
-$ go install github.com/zinrai/consul-kv-syncer
+$ go install github.com/zinrai/consul-kv-sync
 ```
 
 ## Quick Start
@@ -23,7 +23,7 @@ Use the example directly from the example directory:
 
 ```bash
 $ cd example
-$ consul-kv-syncer -env development -dry-run
+$ consul-kv-sync -env development -dry-run
 ```
 
 ## Usage
@@ -31,31 +31,31 @@ $ consul-kv-syncer -env development -dry-run
 Show help:
 
 ```bash
-$ consul-kv-syncer -h
+$ consul-kv-sync -h
 ```
 
 Sync production environment:
 
 ```bash
-$ consul-kv-syncer -env production
+$ consul-kv-sync -env production
 ```
 
 Dry run for staging environment:
 
 ```bash
-$ consul-kv-syncer -env staging -dry-run
+$ consul-kv-sync -env staging -dry-run
 ```
 
 Verbose output with custom Consul address:
 
 ```bash
-$ consul-kv-syncer -env production -consul-addr http://consul:8500 -verbose
+$ consul-kv-sync -env production -consul-addr http://consul:8500 -verbose
 ```
 
 Export to JSON format:
 
 ```bash
-$ consul-kv-syncer -env production -export > production-kv.json
+$ consul-kv-sync -env production -export > production-kv.json
 ```
 
 ## Configuration

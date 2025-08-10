@@ -1,6 +1,6 @@
-# consul-kv-syncer Example Configuration
+# consul-kv-sync Example Configuration
 
-This directory contains example configurations demonstrating how to use consul-kv-syncer for different environments.
+This directory contains example configurations demonstrating how to use consul-kv-sync for different environments.
 
 ## Quick Test
 
@@ -8,13 +8,13 @@ From this directory, you can test the tool with:
 
 ```bash
 # Dry run for development environment
-$ consul-kv-syncer -env development -dry-run
+$ consul-kv-sync -env development -dry-run
 
 # Dry run for staging environment
-$ consul-kv-syncer -env staging -dry-run
+$ consul-kv-sync -env staging -dry-run
 
 # Dry run for production environment
-$ consul-kv-syncer -env production -dry-run
+$ consul-kv-sync -env production -dry-run
 ```
 
 ## Structure

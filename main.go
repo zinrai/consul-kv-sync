@@ -28,7 +28,7 @@ func main() {
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: %s -env <environment> [options]\n\n", os.Args[0])
-		fmt.Fprintf(os.Stderr, "consul-kv-syncer synchronizes YAML files to Consul KV store.\n\n")
+		fmt.Fprintf(os.Stderr, "consul-kv-sync synchronizes YAML files to Consul KV store.\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nExamples:\n")
