@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -18,14 +19,17 @@ const (
 type ConsulClient struct {
 	addr       string
 	datacenter string
+	token      string
 	httpClient *http.Client
 }
 
-// NewConsulClient creates a new Consul client
+// NewConsulClient creates a new Consul client.
+// The ACL token is read from the CONSUL_HTTP_TOKEN environment variable, matching the Consul CLI convention.
 func NewConsulClient(addr, datacenter string) *ConsulClient {
 	return &ConsulClient{
 		addr:       addr,
 		datacenter: datacenter,
+		token:      os.Getenv("CONSUL_HTTP_TOKEN"),
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
@@ -46,6 +50,9 @@ func (c *ConsulClient) executeTransaction(ops []TxnOp) (*TxnResponse, error) {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
+	if c.token != "" {
+		req.Header.Set("X-Consul-Token", c.token)
+	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
