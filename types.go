@@ -1,10 +1,5 @@
 package main
 
-// Config represents the environment configuration
-type Config struct {
-	Environments map[string][]string `yaml:",inline"`
-}
-
 // KVPair represents a key-value pair
 type KVPair struct {
 	Key   string

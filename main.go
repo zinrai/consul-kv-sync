@@ -11,38 +11,44 @@ import (
 const (
 	DefaultConsulAddr = "http://127.0.0.1:8500"
 	DefaultDatacenter = "dc1"
-	DefaultConfigFile = "./environments.yaml"
+)
+
+// Injected at build time by goreleaser ldflags.
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
 )
 
 func main() {
 	// Define command line flags
 	var (
-		environment = flag.String("env", "", "Environment name (required)")
-		configFile  = flag.String("config", DefaultConfigFile, "Path to environments configuration file")
+		kvDir       = flag.String("dir", "", "Path to the directory of YAML files to sync (required)")
 		dryRun      = flag.Bool("dry-run", false, "Perform a dry run without making actual changes")
 		export      = flag.Bool("export", false, "Export KV pairs in Consul JSON format to stdout")
 		consulAddr  = flag.String("consul-addr", DefaultConsulAddr, "Consul HTTP API address")
 		datacenter  = flag.String("datacenter", DefaultDatacenter, "Consul datacenter")
 		verbose     = flag.Bool("verbose", false, "Enable verbose output")
+		showVersion = flag.Bool("version", false, "Show version information")
 	)
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage: %s -env <environment> [options]\n\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s -dir <directory> [options]\n\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "consul-kv-sync synchronizes YAML files to Consul KV store.\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
-		fmt.Fprintf(os.Stderr, "\nExamples:\n")
-		fmt.Fprintf(os.Stderr, "  %s -env production\n", os.Args[0])
-		fmt.Fprintf(os.Stderr, "  %s -env staging -dry-run\n", os.Args[0])
-		fmt.Fprintf(os.Stderr, "  %s -env production -export > production-kv.json\n", os.Args[0])
-		fmt.Fprintf(os.Stderr, "  %s -env production -consul-addr http://consul:8500 -verbose\n", os.Args[0])
 	}
 
 	flag.Parse()
 
+	if *showVersion {
+		fmt.Printf("consul-kv-sync version %s (commit: %s, built: %s)\n", version, commit, date)
+		return
+	}
+
 	// Validate required flags
-	if *environment == "" {
-		fmt.Fprintf(os.Stderr, "Error: -env flag is required\n\n")
+	if *kvDir == "" {
+		fmt.Fprintf(os.Stderr, "Error: -dir flag is required\n\n")
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -53,15 +59,15 @@ func main() {
 	}
 
 	// Execute main logic
-	if err := run(*environment, *configFile, *dryRun, *export, *consulAddr, *datacenter, *verbose); err != nil {
+	if err := run(*kvDir, *dryRun, *export, *consulAddr, *datacenter, *verbose); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(environment, configFile string, dryRun, export bool, consulAddr, datacenter string, verbose bool) error {
+func run(kvDir string, dryRun, export bool, consulAddr, datacenter string, verbose bool) error {
 	// Load configuration and files
-	kvMaps, filenames, err := loadConfigurationAndFiles(environment, configFile, verbose)
+	kvMaps, filenames, err := loadConfigurationAndFiles(kvDir, verbose)
 	if err != nil {
 		return err
 	}
@@ -93,36 +99,23 @@ func run(environment, configFile string, dryRun, export bool, consulAddr, datace
 	return syncToConsul(allPairs, consulAddr, datacenter, verbose)
 }
 
-func loadConfigurationAndFiles(environment, configFile string, verbose bool) ([]map[string]interface{}, []string, error) {
-	// Step 1: Load environment configuration
-	if verbose {
-		fmt.Printf("Loading configuration from %s...\n", configFile)
-	}
-
-	config, err := loadEnvironments(configFile)
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to load configuration: %w", err)
-	}
-
-	// Step 2: Get files for the specified environment
-	files, err := getEnvironmentFiles(config, environment)
+func loadConfigurationAndFiles(kvDir string, verbose bool) ([]map[string]interface{}, []string, error) {
+	// Step 1: Collect the YAML files in the directory
+	paths, err := yamlFiles(kvDir)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	if verbose {
-		fmt.Printf("Found %d files for environment '%s'\n", len(files), environment)
+		fmt.Printf("Found %d files in %s\n", len(paths), kvDir)
 	}
 
-	// Step 3: Resolve file paths
-	resolvedPaths := resolveFilePaths(configFile, files)
-
-	// Step 4: Load all YAML files
+	// Step 2: Load all YAML files
 	if verbose {
 		fmt.Println("Loading YAML files...")
 	}
 
-	kvMaps, filenames, err := loadAllYAMLFiles(resolvedPaths)
+	kvMaps, filenames, err := loadAllYAMLFiles(paths)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to load YAML files: %w", err)
 	}

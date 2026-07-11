@@ -7,23 +7,24 @@ This directory contains example configurations demonstrating how to use consul-k
 From this directory, you can test the tool with:
 
 ```bash
-# Dry run for development environment
-$ consul-kv-sync -env development -dry-run
+# Dry run for development configs
+$ consul-kv-sync -dir kv-files/development -dry-run
 
-# Dry run for staging environment
-$ consul-kv-sync -env staging -dry-run
+# Dry run for staging configs
+$ consul-kv-sync -dir kv-files/staging -dry-run
 
-# Dry run for production environment
-$ consul-kv-sync -env production -dry-run
+# Dry run for production configs
+$ consul-kv-sync -dir kv-files/production -dry-run
 ```
 
 ## Structure
 
 ```
 example/
-├── environments.yaml   # Environment definitions
-└── kv-files/           # KV configurations per environment
+└── kv-files/           # One directory per environment
     ├── development/    # Development configs (minimal)
     ├── staging/        # Staging configs (feature flags enabled)
     └── production/     # Production configs (full setup)
 ```
+
+Point `-dir` at one of these directories to sync every `.yaml` / `.yml` file inside it. The directory names are just a convention: the tool syncs whatever directory it is given.

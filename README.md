@@ -4,18 +4,11 @@ A tool to synchronize YAML configuration files to Consul KV store using the [Tra
 
 ## Features
 
-- Batch synchronization of multiple YAML files to Consul KV
-- Environment-based configuration management
+- Batch synchronization of every YAML file in a directory to Consul KV
 - Duplicate key detection across files
 - Dry-run mode for validation
 - Atomic operations using Consul Transaction API (up to 64 operations per transaction)
 - Export to Consul KV JSON format for backup or import
-
-## Installation
-
-```bash
-$ go install github.com/zinrai/consul-kv-sync
-```
 
 ## Quick Start
 
@@ -23,7 +16,7 @@ Use the example directly from the example directory:
 
 ```bash
 $ cd example
-$ consul-kv-sync -env development -dry-run
+$ consul-kv-sync -dir kv-files/development -dry-run
 ```
 
 ## Usage
@@ -34,45 +27,50 @@ Show help:
 $ consul-kv-sync -h
 ```
 
-Sync production environment:
+Sync a directory:
 
 ```bash
-$ consul-kv-sync -env production
+$ consul-kv-sync -dir kv-files/production
 ```
 
-Dry run for staging environment:
+Dry run:
 
 ```bash
-$ consul-kv-sync -env staging -dry-run
+$ consul-kv-sync -dir kv-files/staging -dry-run
 ```
 
 Verbose output with custom Consul address:
 
 ```bash
-$ consul-kv-sync -env production -consul-addr http://consul:8500 -verbose
+$ consul-kv-sync -dir kv-files/production -consul-addr http://consul:8500 -verbose
+```
+
+When ACLs are enabled, the token is read from the `CONSUL_HTTP_TOKEN` environment variable, following the Consul CLI convention:
+
+```bash
+$ CONSUL_HTTP_TOKEN=<token> consul-kv-sync -dir kv-files/production
 ```
 
 Export to JSON format:
 
 ```bash
-$ consul-kv-sync -env production -export > production-kv.json
+$ consul-kv-sync -dir kv-files/production -export > production-kv.json
 ```
 
 ## Configuration
 
-See the `example/` directory for sample configurations demonstrating:
+`consul-kv-sync` syncs the YAML files in whatever directory `-dir` points at. Organizing configuration by environment is a matter of directory naming, not a tool feature: keep one directory per environment and point `-dir` at the one you want to sync.
 
-- Environment-based organization
-- Different configuration patterns
-- Progressive complexity from development to production
+See the `example/` directory for a sample layout.
 
 ## How it Works
 
-1. Reads environment definition from `environments.yaml`
-2. Loads all YAML files specified for the target environment
-3. Detects duplicate keys across files
-4. Converts nested YAML structure to flat key-value pairs
-5. Synchronizes to Consul using Transaction API in batches
+1. Loads every `.yaml` / `.yml` file directly inside `-dir`
+2. Detects duplicate keys across files
+3. Converts nested YAML structure to flat key-value pairs
+4. Synchronizes to Consul using Transaction API in batches
+
+The directory is the source of truth: to add configuration, drop a YAML file into it. There is no separate manifest to keep in sync.
 
 ## License
 
