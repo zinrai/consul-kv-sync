@@ -1,25 +1,26 @@
-# Application configuration for development environment
+# Database configuration for development environment
 
-app:
-  name: my-awesome-app
-  version: dev-latest
-  environment: development
-  
-  server:
+database:
+  primary:
     host: localhost
-    port: 8080
-    timeout: 30s
-    
-  logging:
-    level: debug
-    format: json
-    output: stdout
-    
-  security:
-    cors:
-      enabled: true
-      origins:
-        - http://localhost:3000
-        - http://localhost:3001
-    csrf:
-      enabled: false  # Disabled for development
+    port: 5432
+    name: myapp_development
+    user: dev_user
+    pool:
+      min: 2
+      max: 10
+      idle_timeout: 300s
+
+  read_replica:
+    enabled: false
+
+  migrations:
+    auto_run: true
+    path: /migrations
+
+  backup:
+    enabled: false
+
+monitoring:
+  slow_query_threshold: 100ms
+  log_queries: true
