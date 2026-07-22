@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gopkg.in/yaml.v3"
+	"github.com/goccy/go-yaml"
 )
 
 // loadYAMLFile loads a single YAML file and returns its content as a map
